@@ -90,6 +90,27 @@ function hasRecommend(x){const t=dataText(x);return recommendData(x).length>0||t
 function hasAO(x){const t=dataText(x);return aoData(x).length>0||t.includes('総合型')}
 const WOMENS_UNIV_EXTRA_LIST=['藤女子大学','聖徳大学','津田塾大学','神戸女学院大学'];
 function isWomenOnlyUniversity(x){const name=String(x.univ||x.raw?.['大学名']||'');if(name.includes('女子'))return true;return WOMENS_UNIV_EXTRA_LIST.some(n=>name.includes(n))}
+function isCourseTypeIncompatible(x,ctype){
+  const target=String((x.field||'')+(x.faculty||'')+(x.dept||'')+(x.exam||'')+(x.memo||''));
+  if(!ctype||ctype==='まだ決まっていない')return false;
+  if(ctype==='文系'){
+    if(/医学|歯学|薬学|看護|保健|医療|臨床|理学療法|作業療法|放射線|検査技術|獣医|栄養/.test(target))return true;
+    if(/理学|工学|理工|情報|データサイエンス|農学|水産|海洋|生命|生物|化学|物理|地学|数学|数理|機械|電気|電子|建築|土木|材料|環境|応用/.test(target))return true;
+    if(/教育|教員|学校/.test(target)&&/数学|理科|物理|化学|生物|地学|情報|技術|保健体育|体育/.test(target))return true;
+    return false;
+  }
+  if(ctype==='理系'){
+    if(/文学|語学|外国語|国際|法学|政治|経済|経営|商学|人文|社会|心理|福祉|保育/.test(target))return true;
+    return false;
+  }
+  if(ctype==='医療系'||ctype==='看護系'){
+    return !(/医学|歯学|薬学|看護|保健|医療|臨床|理学療法|作業療法|放射線|検査技術|リハビリ|福祉健康/.test(target));
+  }
+  if(ctype==='教育系'){
+    return !(/教育|教員|学校|保育|子ども|こども|児童/.test(target));
+  }
+  return false;
+}
 function sectorScore(sector,asp){const s=String(sector||'');if(!asp||asp==='未定')return 2;if(asp==='私立も含めて検討')return 4;if(asp==='国公立志望')return (s.includes('国立')||s.includes('公立')||s.includes('国公立'))?6:0;if(asp==='私立志望')return s.includes('私立')?6:0;return 0}
 function judgeLabel(diff){if(diff<=-10)return'安全寄り';if(diff<=-5)return'安全寄り';if(diff<=-2)return'やや安全';if(diff<=2)return'実力相応';if(diff<=5)return'ややチャレンジ';if(diff<=8)return'チャレンジ';return'大幅チャレンジ'}
 function academicFitScoreByDiff(diff){if(diff<=-10)return 12;if(diff<=-5)return 22;if(diff<=-2)return 27;if(diff<=2)return 30;if(diff<=5)return 24;if(diff<=8)return 18;return 10}
@@ -98,7 +119,7 @@ function fieldScoreAndReason(x,fields,ctype){const target=String(x.field+x.facul
 function regionScoreAndReason(x,ctx){if(ctx.prefs.includes(x.pref))return{score:12,reason:'希望エリアに合う'};if(ctx.allJapan)return{score:4,reason:''};return{score:0,reason:''}}
 function examSuitabilityScore(x,profile){let s=0;const t=dataText(x);if(profile.type.includes('一般')||profile.type.includes('共通テスト')){if(hasGeneral(x))s+=6;if(t.includes('共通テスト')||t.includes('共テ'))s+=2;if(t.includes('個別')||t.includes('二次'))s+=2}else if(profile.type.includes('学校推薦型')||profile.type.includes('総合型')){if(hasRecommend(x)||hasAO(x))s+=3;if(profile.gpaProfile?.gpa!=null)s+=2;if(profile.gpaProfile?.interest==='high')s+=2;else if(profile.gpaProfile?.interest==='middle')s+=1;if(t.includes('面接')||t.includes('小論文')||t.includes('活動')||t.includes('志望理由'))s+=3}else if(profile.type.includes('将来')){s+=5}else{s+=hasGeneral(x)?5:2}return Math.min(10,s)}
 function subjectFitScore(x,acad){const t=dataText(x);let s=0;(acad.strong||[]).forEach(k=>{if(k&&t.includes(k))s+=2});(acad.weak||[]).forEach(k=>{if(k&&t.includes(k))s-=1});return Math.max(0,Math.min(6,s))}
-function scoreCandidate(x,ctx){let score=0,reasons=[];if(isWomenOnlyUniversity(x)&&ctx.gender==='male')return{score:-999,reasons:['男子選択のため女子大は除外']};const fs=fieldScoreAndReason(x,ctx.fields||[],ctx.ctype);score+=fs.score;if(fs.reason)reasons.push(fs.reason);const academic=academicFitScore(x,ctx.hJudge,ctx.ctJudge);score+=academic;if(academic>=27)reasons.push('学力帯が現実的');else if(academic>=18)reasons.push('学力面は確認しながら検討');const rs=regionScoreAndReason(x,ctx);score+=rs.score;if(rs.reason)reasons.push(rs.reason);const exs=examSuitabilityScore(x,ctx.exam);score+=exs;if(exs>=7)reasons.push('入試方式の相性がよい');const ss=sectorScore(x.sector,ctx.asp);score+=ss;if(ss>=6)reasons.push('設置区分の希望に合う');score+=subjectFitScore(x,ctx.acad);if(isWomenOnlyUniversity(x)&&ctx.gender==='female'){score+=3;reasons.push('女子大も視野に入れやすい')}const mb=mbtiMatchScore(x,ctx.mbti);score+=mb;if(mb>0)reasons.push('MBTI参考分野とも一部一致');return{score,reasons}}
+function scoreCandidate(x,ctx){let score=0,reasons=[];if(isWomenOnlyUniversity(x)&&ctx.gender==='male')return{score:-999,reasons:['男子選択のため女子大は除外']};if(isCourseTypeIncompatible(x,ctx.ctype))return{score:-999,reasons:['文理・進路タイプと合わないため除外']};const fs=fieldScoreAndReason(x,ctx.fields||[],ctx.ctype);score+=fs.score;if(fs.reason)reasons.push(fs.reason);const academic=academicFitScore(x,ctx.hJudge,ctx.ctJudge);score+=academic;if(academic>=27)reasons.push('学力帯が現実的');else if(academic>=18)reasons.push('学力面は確認しながら検討');const rs=regionScoreAndReason(x,ctx);score+=rs.score;if(rs.reason)reasons.push(rs.reason);const exs=examSuitabilityScore(x,ctx.exam);score+=exs;if(exs>=7)reasons.push('入試方式の相性がよい');const ss=sectorScore(x.sector,ctx.asp);score+=ss;if(ss>=6)reasons.push('設置区分の希望に合う');score+=subjectFitScore(x,ctx.acad);if(isWomenOnlyUniversity(x)&&ctx.gender==='female'){score+=3;reasons.push('女子大も視野に入れやすい')}const mb=mbtiMatchScore(x,ctx.mbti);score+=mb;if(mb>0)reasons.push('MBTI参考分野とも一部一致');return{score,reasons}}
 function aspirationOk(sector,asp){return true}
 function examSummaryForResult(x,profile){let kind='一般選抜';if(profile.type.includes('学校推薦型')&&profile.gpaProfile.interest!=='low')kind='学校推薦型・総合型も確認';if(profile.type.includes('将来'))kind='将来の参考候補';let lines=[`<b>おすすめ方式：</b>${kind}`];lines.push(`偏差値：${esc(displayHensachi(x))}`);lines.push(`共テ得点率：${esc(displayCtRate(x))}`);if(x.exam)lines.push(`方式：${esc(x.exam)}`);if(x.memo)lines.push(`メモ：${esc(x.memo)}`);return lines.join('<br>')}
 function resultGroupLabel(r,hJudge,ctJudge){
