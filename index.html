@@ -1,11 +1,11 @@
 <!doctype html>
-<!-- VERIFIED_DEFAULT50_2026-05-21_vFINAL --><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>大学診断アプリ</title><style>
+<!-- VERIFIED_DEFAULT50_BALANCED_GROUPS_2026-05-21_vFINAL2 --><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>大学診断アプリ</title><style>
 body{margin:0;font-family:'Yu Gothic','Meiryo',sans-serif;background:#f4f7fb;color:#172033;line-height:1.7}.wrap{max-width:1100px;margin:auto;padding:24px 14px}.hero,.card{background:#fff;border:1px solid #e5e7eb;border-radius:22px;box-shadow:0 12px 28px #0f172a14;padding:24px;margin-bottom:18px}.hero{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff}h1{font-size:38px;line-height:1.2;margin:8px 0}h2{margin:0 0 10px}.muted{color:#64748b;font-size:13px}.note{background:#fffbeb;border:1px solid #fde68a;color:#78350f;border-radius:14px;padding:12px;margin:12px 0}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}@media(max-width:850px){.grid,.grid3{grid-template-columns:1fr}}label.ttl{display:block;font-weight:900;margin:14px 0 6px}select,input{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:12px;font-size:15px;box-sizing:border-box;background:#fff}.chips{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.chip input,.scale input{display:none}.chip span,.scale span{display:block;border:1px solid #cbd5e1;border-radius:12px;background:#fff;padding:10px;cursor:pointer}.chip input:checked+span,.scale input:checked+span{background:#eff6ff;border-color:#2563eb;color:#1d4ed8;font-weight:900}.region{border:1px solid #e2e8f0;border-radius:14px;margin:10px 0;overflow:hidden;background:#fff}.region summary{background:#f8fafc;padding:12px 14px;font-weight:900;cursor:pointer}.pref{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px}.pref label{border:1px solid #e2e8f0;border-radius:10px;padding:7px;font-size:14px}.qbox{border:1px solid #e2e8f0;border-radius:14px;padding:12px;margin:10px 0;background:#fff}.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:8px}.scale span{text-align:center;font-size:13px}.btns{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:18px}button{border:0;border-radius:12px;padding:12px 18px;font-size:15px;font-weight:900;cursor:pointer}.primary{background:#2563eb;color:#fff}.secondary{background:#e5e7eb}.status{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px;color:#64748b;font-size:13px}.ok{background:#ecfdf5;color:#166534}.err{background:#fef2f2;color:#991b1b}.hidden{display:none!important}.subject-hidden{display:none!important}.subject-note{background:#eef6ff;border:1px solid #bfdbfe;color:#1e3a8a;border-radius:12px;padding:10px;margin:8px 0;font-size:13px}.resultHead{background:#eff6ff;border:1px solid #dbeafe;border-radius:18px;padding:18px}.tag{display:inline-block;border-radius:999px;background:#eef2ff;color:#3730a3;font-weight:900;font-size:12px;padding:4px 9px;margin:3px}.cols{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:14px}.box{border:1px solid #e2e8f0;border-radius:16px;padding:14px}.tablewrap{overflow:auto;border:1px solid #e2e8f0;border-radius:16px;margin-top:10px}table{width:100%;border-collapse:collapse;font-size:13px}th,td{border-bottom:1px solid #e2e8f0;padding:9px;text-align:left;vertical-align:top}th{background:#f8fafc;white-space:nowrap}@media(max-width:850px){.chips,.cols{grid-template-columns:1fr}.pref{grid-template-columns:repeat(2,1fr)}.scale{grid-template-columns:1fr}h1{font-size:30px}}@media print{body{background:#fff}.btns,#formCard{display:none}.card{box-shadow:none;border:1px solid #ddd}}
 </style></head><body><div class="wrap"><section class="hero"><div>大学診断アプリ</div><h1>大学・進路・入試方式を<br>まとめて診断</h1><p>大学データは外部JSONから読み込みます。</p></section>
 <section id="formCard" class="card"><h2>診断入力</h2><p class="muted">入力できるところだけで大丈夫です。スマホで質問が出ない場合は「質問を表示・更新」を押してください。</p><div class="note">全国の大学データをもとに診断結果を表示します。ただし、収録している大学・学部は、すべての大学を網羅したものではなく、こちらで選定した大学を対象にしています。診断結果は進路相談のたたき台としてご活用ください。</div><div id="status" class="status">大学データを読み込み中です。</div>
 <div class="grid3"><div><label class="ttl">診断モード</label><select id="mode"><option value="15">簡易診断</option><option value="30">普通診断</option><option value="45">詳細診断</option></select></div><div><label class="ttl">学年</label><select id="grade"><option value="">選択してください</option><option>小4</option><option>小5</option><option>小6</option><option>中1</option><option>中2</option><option>中3</option><option>高1</option><option>高2</option><option>高3</option></select></div><div><label class="ttl">性別</label><select id="gender"><option value="no_answer">回答しない</option><option value="male">男子</option><option value="female">女子</option></select><p class="muted">男子には女子大・女子枠を表示しません。</p></div></div>
 <div class="grid"><div><label class="ttl">診断時期</label><select id="diagnosisMonth"><option value="">選択してください</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option></select><p class="muted">高校生の到達見込み偏差値・得点率の補正に使います。小学生・中学生は学習時期の確認用です。</p></div><div></div></div>
-<div class="grid"><div><label class="ttl">現在の居住地</label><select id="residencePref"><option value="">選択してください</option><option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option><option>海外・その他</option></select><p class="muted">地元志向・希望エリアとの距離感を見るために使います。</p></div><div><label class="ttl">偏差値が分からない場合の成績目安</label><select id="academicProxy"><option value="">選択しない場合は偏差値50で仮判定</option><option value="62">学校・模試で上位10％以内くらい</option><option value="57">上位30％くらい</option><option value="50">真ん中くらい</option><option value="43">それより下くらい</option><option value="skip">わからない</option></select><p class="muted">【最新版確認用】偏差値未入力時は、標準的な偏差値50として仮判定します。「わからない」を選んだ場合のみ、学力判定を弱めます。</p></div></div>
+<div class="grid"><div><label class="ttl">現在の居住地</label><select id="residencePref"><option value="">選択してください</option><option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option><option>海外・その他</option></select><p class="muted">地元志向・希望エリアとの距離感を見るために使います。</p></div><div><label class="ttl">偏差値が分からない場合の成績目安</label><select id="academicProxy"><option value="">選択しない場合は偏差値50で仮判定</option><option value="62">学校・模試で上位10％以内くらい</option><option value="57">上位30％くらい</option><option value="50">真ん中くらい</option><option value="43">それより下くらい</option><option value="skip">わからない</option></select><p class="muted">【最新版確認用】偏差値未入力時は、標準的な偏差値50として仮判定します。「わからない」を選んだ場合のみ、学力判定を弱めます。50基準でチャレンジ・相応・安全の3帯を出すように調整済みです。</p></div></div>
 <div class="grid"><div><label class="ttl" id="hensachiLabel">現在の偏差値目安</label><input id="hensachi" type="number" placeholder="例：55"><p class="muted" id="hensachiNote">学年を選ぶと、入力欄が小学生・中学生・高校生用に切り替わります。</p></div><div id="ctRateWrap"><label class="ttl">共通テスト得点率目安</label><input id="ctRate" type="number" placeholder="例：68"><p class="muted">高校生は学年と診断時期に応じて、受験期までの到達見込み得点率を控えめに補正します。</p></div></div>
 <div id="scoreArea"><div id="elemScoreBox" class="card hidden" style="box-shadow:none;margin:14px 0;padding:16px;background:#f8fafc"><h3 style="margin:0 0 8px">小学生｜オープン模試 偏差値</h3><p class="muted">国語・算数・理科・社会の偏差値を、分かる範囲で入力してください。点数入力は不要です。</p><div class="grid"><div><label class="ttl">国語</label><input id="elemDevJapanese" type="number" placeholder="例：55"></div><div><label class="ttl">算数</label><input id="elemDevMath" type="number" placeholder="例：58"></div><div><label class="ttl">理科</label><input id="elemDevScience" type="number" placeholder="例：52"></div><div><label class="ttl">社会</label><input id="elemDevSocial" type="number" placeholder="例：54"></div></div></div><div id="juniorScoreBox" class="card hidden" style="box-shadow:none;margin:14px 0;padding:16px;background:#f8fafc"><h3 style="margin:0 0 8px">中学生｜学校テスト点数・模試偏差値</h3><p class="muted">学校の定期テスト点数と、模試の偏差値を入力できます。未入力でも診断できます。</p><details open class="region"><summary>学校テストの点数</summary><div style="padding:12px"><div class="grid3" id="juniorScoreInputs"></div></div></details><details open class="region"><summary>模試の偏差値</summary><div style="padding:12px"><div class="grid3" id="juniorDevInputs"></div></div></details></div><div id="highScoreBox" class="card hidden" style="box-shadow:none;margin:14px 0;padding:16px;background:#f8fafc"><h3 style="margin:0 0 8px">高校生｜共通テスト・模試データ</h3><p class="muted">高校生は科目が多いため、必要なところだけ開いて入力してください。文系・理系は上の「文理・進路タイプ」で選択します。</p><div id="subjectFilterNote" class="subject-note">文理・進路タイプを選ぶと、表示する科目を自動で調整します。</div><div id="highInputs"></div></div></div>
 <label class="ttl">現在の志望</label><div class="chips"><label class="chip"><input type="radio" name="aspiration" value="未定" checked><span>未定</span></label><label class="chip"><input type="radio" name="aspiration" value="国公立志望"><span>国公立志望</span></label><label class="chip"><input type="radio" name="aspiration" value="私立志望"><span>私立志望</span></label><label class="chip"><input type="radio" name="aspiration" value="私立も含めて検討"><span>私立も含めて検討</span></label></div>
@@ -70,7 +70,23 @@ function mbtiMatchScore(x,p){if(!p.fields.length)return 0;const target=String(x.
 function selectedFields(){return [...document.querySelectorAll('input[name="field"]:checked')].map(x=>x.value)}
 function setupFieldLimit(){document.querySelectorAll('input[name="field"]').forEach(ch=>{ch.addEventListener('change',()=>{const fields=selectedFields();const msg=document.getElementById('fieldLimitMsg');if(fields.length>3){ch.checked=false;if(msg){msg.textContent='学部系統は3つまで選択できます。';msg.style.color='#991b1b'}}else if(msg){msg.textContent='気になる分野を最大3つまで選べます。未選択でも診断できます。';msg.style.color=''}})})}
 function fieldMatchLevel(x,field,ctype){const target=String(x.field+x.faculty+x.dept);let level=0;const fields=Array.isArray(field)?field:(field?[field]:[]);for(const f of fields){const keys=String(f).split(/[・|]/).filter(Boolean);if(String(f)&&target.includes(String(f)))level=Math.max(level,2);else if(keys.some(k=>target.includes(k)))level=Math.max(level,2)}if(ctype&&ctype!=='まだ決まっていない'){if(ctype==='文系'&&/[法経営商文語国際教育福祉心理]/.test(target))level=Math.max(level,1);if(ctype==='理系'&&/[理工情報農水産]/.test(target))level=Math.max(level,1);if((ctype==='医療系'||ctype==='看護系')&&/[医療看護保健薬歯医]/.test(target))level=Math.max(level,2);if(ctype==='教育系'&&/教育|保育/.test(target))level=Math.max(level,2)}return level}
-function academicDistanceOk(x,hJudge,ctJudge,field,ctype){const uh=bestHensachiValue(x),rate=bestCtRateValue(x),match=fieldMatchLevel(x,field,ctype);if(hJudge){if(uh==null)return false;if(uh>hJudge+12)return false;if(uh<hJudge-15&&match<2)return false;if(uh<hJudge-20)return false}if(ctJudge&&rate!=null){if(rate>ctJudge+15)return false;if(rate<ctJudge-25&&match<2)return false;if(rate<ctJudge-35)return false}return true}
+function academicDistanceOk(x,hJudge,ctJudge,field,ctype){
+  const uh=bestHensachiValue(x),rate=bestCtRateValue(x),match=fieldMatchLevel(x,field,ctype);
+  // 偏差値がある場合は、チャレンジ・相応・安全の3帯を出すために、ここで絞りすぎない。
+  // 極端に離れた大学だけを除外し、最終的な3分類は selectBalancedRows() で行う。
+  if(hJudge){
+    if(uh==null)return false;
+    if(uh>hJudge+20)return false;
+    if(uh<hJudge-25&&match<2)return false;
+    if(uh<hJudge-30)return false;
+  }
+  if(ctJudge&&rate!=null){
+    if(rate>ctJudge+22)return false;
+    if(rate<ctJudge-35&&match<2)return false;
+    if(rate<ctJudge-45)return false;
+  }
+  return true
+}
 function extractArray(v){return Array.isArray(v)?v:[]}
 function dataText(x){return String(x.univ+' '+x.faculty+' '+x.dept+' '+x.field+' '+x.exam+' '+x.memo+' '+JSON.stringify(x.raw||{}))}
 function generalData(x){return extractArray(x.raw?.['一般選抜データ']).concat(extractArray(x.raw?.['general']),extractArray(x.raw?.['一般']))}
@@ -198,32 +214,34 @@ function selectBalancedRows(candidates,hJudge,ctJudge,st){
   const matchLabel=st==='elementary'?'今の力を維持したい標準ゾーン':(st==='junior'?'今の偏差値を維持した場合の候補':'実力相応校');
   const safeLabel=st==='elementary'?'基礎を固めながら考えたい安心ゾーン':(st==='junior'?'ゆとりをもって考えやすい候補':'安全校');
 
-  function byScoreThenDistance(a,b){
-    const ah=bestHensachiValue(a.x), bh=bestHensachiValue(b.x);
-    const ad=(ah!=null&&hJudge!=null)?Math.abs(ah-hJudge):99;
-    const bd=(bh!=null&&hJudge!=null)?Math.abs(bh-hJudge):99;
-    return (b.score-a.score) || (ad-bd);
+  const used=new Set();
+  function diffOf(r){const uh=bestHensachiValue(r.x);return (uh!=null&&hJudge!=null)?uh-hJudge:null}
+  function groupOf(r){return resultGroupLabel(r,hJudge,ctJudge)}
+  function take(label,key,limit=5){
+    let arr=candidates.filter(r=>!used.has(r.x)&&groupOf(r)===key);
+    arr.sort((a,b)=>{
+      const da=diffOf(a),db=diffOf(b);
+      let bandA=0,bandB=0;
+      if(key==='challenge'){bandA=da==null?99:Math.abs(da-6);bandB=db==null?99:Math.abs(db-6)}
+      else if(key==='match'){bandA=da==null?99:Math.abs(da);bandB=db==null?99:Math.abs(db)}
+      else{bandA=da==null?99:Math.abs(da+6);bandB=db==null?99:Math.abs(db+6)}
+      return bandA-bandB || b.score-a.score;
+    });
+    arr=arr.slice(0,limit).map(r=>{used.add(r.x);return {...r,resultGroup:label}});
+    return arr;
   }
 
-  const challenge=candidates
-    .filter(r=>resultGroupLabel(r,hJudge,ctJudge)==='challenge')
-    .sort(byScoreThenDistance)
-    .slice(0,5)
-    .map(r=>({...r,resultGroup:challengeLabel}));
+  const challenge=take(challengeLabel,'challenge',5);
+  const match=take(matchLabel,'match',5);
+  const safe=take(safeLabel,'safe',5);
 
-  const match=candidates
-    .filter(r=>resultGroupLabel(r,hJudge,ctJudge)==='match')
-    .sort(byScoreThenDistance)
-    .slice(0,5)
-    .map(r=>({...r,resultGroup:matchLabel}));
-
-  const safe=candidates
-    .filter(r=>resultGroupLabel(r,hJudge,ctJudge)==='safe')
-    .sort(byScoreThenDistance)
-    .slice(0,5)
-    .map(r=>({...r,resultGroup:safeLabel}));
-
-  return challenge.concat(match,safe);
+  // 3帯のどこかが不足しても、同じ候補を重複表示しない範囲で最大15件まで補完する。
+  const rows=challenge.concat(match,safe);
+  if(rows.length<15){
+    const extra=candidates.filter(r=>!used.has(r.x)).sort((a,b)=>b.score-a.score).slice(0,15-rows.length).map(r=>({...r,resultGroup:resultGroupLabel(r,hJudge,ctJudge)==='challenge'?challengeLabel:(resultGroupLabel(r,hJudge,ctJudge)==='safe'?safeLabel:matchLabel)}));
+    rows.push(...extra);
+  }
+  return rows;
 }
 function resultRowsHtml(rows,hJudge,exam,st){
   if(!rows.length)return `<tr><td colspan="8">条件に合う候補が見つかりませんでした。希望エリア・分野・偏差値を広めにして再診断してください。</td></tr>`;
