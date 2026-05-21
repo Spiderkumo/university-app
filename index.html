@@ -176,29 +176,52 @@ function aspirationOk(sector,asp){return true}
 function examSummaryForResult(x,profile){let kind='一般選抜';if(profile.type.includes('学校推薦型')&&profile.gpaProfile.interest!=='low')kind='学校推薦型・総合型も確認';if(profile.type.includes('将来'))kind='将来の参考候補';let lines=[`<b>おすすめ方式：</b>${kind}`];lines.push(`偏差値：${esc(displayHensachi(x))}`);lines.push(`共テ得点率：${esc(displayCtRate(x))}`);if(x.exam)lines.push(`方式：${esc(x.exam)}`);if(x.memo)lines.push(`メモ：${esc(x.memo)}`);return lines.join('<br>')}
 function resultGroupLabel(r,hJudge,ctJudge){
   const uh=bestHensachiValue(r.x);
-  if(uh!=null&&hJudge){
-    const label=judgeLabel(uh-hJudge);
-    if(label==='安全寄り'||label==='やや安全')return 'safe';
-    if(label==='実力相応')return 'match';
-    return 'challenge';
+  if(uh!=null && hJudge!=null){
+    const diff=uh-hJudge;
+    // 入力偏差値・仮偏差値を中心に、必ず上・中・下へ分ける
+    if(diff>=3)return 'challenge';
+    if(diff<=-3)return 'safe';
+    return 'match';
   }
   const rate=bestCtRateValue(r.x);
-  if(rate!=null&&ctJudge){
+  if(rate!=null && ctJudge!=null){
     const diff=rate-ctJudge;
-    if(diff<=-4)return 'safe';
-    if(diff<=4)return 'match';
-    return 'challenge';
+    if(diff>=5)return 'challenge';
+    if(diff<=-5)return 'safe';
+    return 'match';
   }
   return 'match';
 }
 function selectBalancedRows(candidates,hJudge,ctJudge,st){
-  const isDirectionStage=st==='elementary'||st==='junior';
   const challengeLabel=st==='elementary'?'このまま伸ばしたいチャレンジゾーン':(st==='junior'?'伸ばしたら目指せる候補':'チャレンジ校');
   const matchLabel=st==='elementary'?'今の力を維持したい標準ゾーン':(st==='junior'?'今の偏差値を維持した場合の候補':'実力相応校');
   const safeLabel=st==='elementary'?'基礎を固めながら考えたい安心ゾーン':(st==='junior'?'ゆとりをもって考えやすい候補':'安全校');
-  const challenge=candidates.filter(r=>resultGroupLabel(r,hJudge,ctJudge)==='challenge').slice(0,5).map(r=>({...r,resultGroup:challengeLabel}));
-  const match=candidates.filter(r=>resultGroupLabel(r,hJudge,ctJudge)==='match').slice(0,5).map(r=>({...r,resultGroup:matchLabel}));
-  const safe=candidates.filter(r=>resultGroupLabel(r,hJudge,ctJudge)==='safe').slice(0,5).map(r=>({...r,resultGroup:safeLabel}));
+
+  function byScoreThenDistance(a,b){
+    const ah=bestHensachiValue(a.x), bh=bestHensachiValue(b.x);
+    const ad=(ah!=null&&hJudge!=null)?Math.abs(ah-hJudge):99;
+    const bd=(bh!=null&&hJudge!=null)?Math.abs(bh-hJudge):99;
+    return (b.score-a.score) || (ad-bd);
+  }
+
+  const challenge=candidates
+    .filter(r=>resultGroupLabel(r,hJudge,ctJudge)==='challenge')
+    .sort(byScoreThenDistance)
+    .slice(0,5)
+    .map(r=>({...r,resultGroup:challengeLabel}));
+
+  const match=candidates
+    .filter(r=>resultGroupLabel(r,hJudge,ctJudge)==='match')
+    .sort(byScoreThenDistance)
+    .slice(0,5)
+    .map(r=>({...r,resultGroup:matchLabel}));
+
+  const safe=candidates
+    .filter(r=>resultGroupLabel(r,hJudge,ctJudge)==='safe')
+    .sort(byScoreThenDistance)
+    .slice(0,5)
+    .map(r=>({...r,resultGroup:safeLabel}));
+
   return challenge.concat(match,safe);
 }
 function resultRowsHtml(rows,hJudge,exam,st){
@@ -211,7 +234,7 @@ function resultRowsHtml(rows,hJudge,exam,st){
     }
     const uh=bestHensachiValue(r.x),diff=(uh!=null&&hJudge)?uh-hJudge:0;
     const isDirectionStage=st==='elementary'||st==='junior';
-    const judgeText=isDirectionStage?(diff>2?'伸ばしたら目指せる':(diff<-2?'ゆとりあり':'維持できれば現実的')):judgeLabel(diff);
+    const judgeText=isDirectionStage?(diff>=3?'伸ばす目標':(diff<=-3?'基礎固め':'維持できれば視野に入る')):judgeLabel(diff);
     html+=`<tr><td>${no++}</td><td><b>${esc(r.x.univ)}</b><br>${esc(r.x.faculty)}</td><td>${esc(r.x.dept||'')}</td><td>${esc(r.x.sector||'')}</td><td>${judgeText}</td><td>${esc(r.x.job||'要確認')}</td><td>${esc((r.reasons.length?r.reasons.join('／'):'条件に合う可能性があります'))}</td><td>${examSummaryForResult(r.x,exam)}</td></tr>`;
   });
   return html;
@@ -221,7 +244,7 @@ function proxyDeviationValue(){const v=val('academicProxy');if(v==='skip')return
 function academicBasisText(h,basis){if(h!=null&&basis==="input")return `入力された偏差値 ${h} をもとに判定しています。`;if(h!=null&&basis==="proxy")return `偏差値が未入力のため、成績目安から推計偏差値 ${h} として仮判定しています。`;if(h!=null&&basis==="default50")return `偏差値が未入力のため、標準的な偏差値50として仮判定しています。実際の模試結果を入力すると、より現実的な候補が表示されます。`;return '偏差値・成績目安が「わからない」のため、学力による絞り込みを弱め、興味・適性を中心に表示しています。';}
 function sameRegion(prefA,prefB){if(!prefA||!prefB)return false;for(const ps of Object.values(REGIONS)){if(ps.includes(prefA)&&ps.includes(prefB))return true}return false}
 
-function runDiagnosis(){try{let st=gradeStage(),gender=val('gender'),asp=(document.querySelector('input[name="aspiration"]:checked')||{}).value||'未定',prefs=[...document.querySelectorAll('input[name="pref"]:checked')].map(x=>x.value),allJapan=document.getElementById('allJapan').checked,fields=selectedFields(),ctype=val('courseType'),h=num(val('hensachi')),ct=num(val('ctRate')),academicBasis='input';if(h==null){const pv=proxyDeviationValue();if(pv!=null){h=pv;academicBasis='proxy'}else if(val('academicProxy')==='skip'){academicBasis='skip'}else{h=50;academicBasis='default50'}}const hProj=projectedDeviation(h),ctProj=projectedCtRate(ct),hJudge=hProj.effective||h,ctJudge=ctProj.effective||ct,exam=examProfile(),acad=academicProfile(),mbti=mbtiProfile(),residence=val('residencePref');const ctx={st,gender,asp,prefs,allJapan,fields,ctype,hJudge,ctJudge,mbti,exam,acad,residence};let candidates=DB.filter(x=>(allJapan||prefs.length===0||prefs.includes(x.pref))).filter(x=>academicDistanceOk(x,hJudge,ctJudge,fields,ctype)).map(x=>({x,...scoreCandidate(x,ctx)})).filter(r=>r.score>-100).sort((a,b)=>b.score-a.score);let rows=selectBalancedRows(candidates,hJudge,ctJudge,st);const fieldLabel=fields.length?fields.join('・'):'分野指定なし';setText('resultTitle',exam.type);setText('candidateHeading',st==='high'?'大学・学部候補':'将来の参考大学・学部例');setText('resultLead',exam.lead);document.getElementById('tags').innerHTML=[st==='elementary'?'小学生用質問':(st==='junior'?'中学生用質問':'高校生用質問'),val('grade')||'学年未選択',fieldLabel,ctype||'進路タイプ指定なし'].map(t=>`<span class="tag">${esc(t)}</span>`).join('');let fa=[];if(fields.length)fa.push(`${fields.join('・')} 系統を中心に候補を見ています。`);if(ctype)fa.push(`${ctype} の方向性も加味しています。`);if(mbti.fields.length)fa.push(`MBTI参考：${mbti.types.join('・')}。相性を見やすい分野は ${mbti.fields.slice(0,3).join('・')} です。`);if(!fa.length)fa.push('興味のある分野を選ぶと、候補の精度が上がります。');document.getElementById('fieldAdvice').innerHTML=fa.map(x=>`<li>${esc(x)}</li>`).join('');let todo=academicAdviceText(acad);todo.push(academicBasisText(h,academicBasis));if(st==='elementary'){todo.push('小学生の偏差値は合否判定ではなく、将来の方向性を考えるためのレベル感として使っています。');if(h)todo.push(`現在のオープン模試総合偏差値：${h}。この偏差値を維持した場合の候補と、さらに伸ばした場合に目指せる候補を分けて表示しています。`);todo.push('今は大学名を決めるより、好きな教科・得意な勉強方法・興味のある仕事を広げましょう。');}else if(st==='junior'){todo.push('中学生の偏差値は、現時点で大学を決めるためではなく、将来の進路の方向性を考えるためのレベル感として使っています。');if(h)todo.push(`現在の模試総合偏差値：${h}。この偏差値を維持した場合の候補と、さらに伸ばした場合に目指せる候補を分けて表示しています。`);todo.push('今は大学名を決め切るより、高校入試・高校での文理選択・伸ばすべき教科を考える材料として使いましょう。');todo.push(exam.gpaProfile.message)}else{todo.push(projectionText(hProj));if(st==='high')todo.push(ctProjectionText(ctProj));todo.push(exam.gpaProfile.message)}document.getElementById('todoAdvice').innerHTML=todo.map(x=>`<li>${esc(x)}</li>`).join('');document.getElementById('consultAdvice').innerHTML=['この候補をそのまま決定にせず、先生・保護者との進路相談のたたき台にしてください。','最新の募集要項、入試科目、評定条件、出願資格を必ず確認してください。'].map(x=>`<li>${esc(x)}</li>`).join('');document.getElementById('warnings').innerHTML=['この診断結果は、進路選択の参考資料です。','到達見込み偏差値・到達見込み得点率は目安であり、成績上昇を保証するものではありません。'].map(x=>`<li>${esc(x)}</li>`).join('');document.getElementById('rows').innerHTML=resultRowsHtml(rows,hJudge,exam,st);document.getElementById('formCard').classList.add('hidden');document.getElementById('resultCard').classList.remove('hidden');scrollTo(0,0)}catch(e){alert('診断中にエラーが発生しました：'+e.message);console.error(e)}}
+function runDiagnosis(){try{let st=gradeStage(),gender=val('gender'),asp=(document.querySelector('input[name="aspiration"]:checked')||{}).value||'未定',prefs=[...document.querySelectorAll('input[name="pref"]:checked')].map(x=>x.value),allJapan=document.getElementById('allJapan').checked,fields=selectedFields(),ctype=val('courseType'),h=num(val('hensachi')),ct=num(val('ctRate')),academicBasis='input';if(h==null){const pv=proxyDeviationValue();if(pv!=null){h=pv;academicBasis='proxy'}else if(val('academicProxy')==='skip'){academicBasis='skip'}else{h=50;academicBasis='default50'}}const hProj=(academicBasis==='input'?projectedDeviation(h):{current:h,projected:h,effective:h,bonus:0}),ctProj=projectedCtRate(ct),hJudge=(hProj.effective!=null?hProj.effective:h),ctJudge=ctProj.effective||ct,exam=examProfile(),acad=academicProfile(),mbti=mbtiProfile(),residence=val('residencePref');const ctx={st,gender,asp,prefs,allJapan,fields,ctype,hJudge,ctJudge,mbti,exam,acad,residence};let candidates=DB.filter(x=>(allJapan||prefs.length===0||prefs.includes(x.pref))).filter(x=>academicDistanceOk(x,hJudge,ctJudge,fields,ctype)).map(x=>({x,...scoreCandidate(x,ctx)})).filter(r=>r.score>-100).sort((a,b)=>b.score-a.score);let rows=selectBalancedRows(candidates,hJudge,ctJudge,st);const fieldLabel=fields.length?fields.join('・'):'分野指定なし';setText('resultTitle',exam.type);setText('candidateHeading',st==='high'?'大学・学部候補':'将来の参考大学・学部例');setText('resultLead',exam.lead);document.getElementById('tags').innerHTML=[st==='elementary'?'小学生用質問':(st==='junior'?'中学生用質問':'高校生用質問'),val('grade')||'学年未選択',fieldLabel,ctype||'進路タイプ指定なし'].map(t=>`<span class="tag">${esc(t)}</span>`).join('');let fa=[];if(fields.length)fa.push(`${fields.join('・')} 系統を中心に候補を見ています。`);if(ctype)fa.push(`${ctype} の方向性も加味しています。`);if(mbti.fields.length)fa.push(`MBTI参考：${mbti.types.join('・')}。相性を見やすい分野は ${mbti.fields.slice(0,3).join('・')} です。`);if(!fa.length)fa.push('興味のある分野を選ぶと、候補の精度が上がります。');document.getElementById('fieldAdvice').innerHTML=fa.map(x=>`<li>${esc(x)}</li>`).join('');let todo=academicAdviceText(acad);todo.push(academicBasisText(h,academicBasis));if(st==='elementary'){todo.push('小学生の偏差値は合否判定ではなく、将来の方向性を考えるためのレベル感として使っています。');if(h)todo.push(`現在のオープン模試総合偏差値：${h}。この偏差値を維持した場合の候補と、さらに伸ばした場合に目指せる候補を分けて表示しています。`);todo.push('今は大学名を決めるより、好きな教科・得意な勉強方法・興味のある仕事を広げましょう。');}else if(st==='junior'){todo.push('中学生の偏差値は、現時点で大学を決めるためではなく、将来の進路の方向性を考えるためのレベル感として使っています。');if(h)todo.push(`現在の模試総合偏差値：${h}。この偏差値を維持した場合の候補と、さらに伸ばした場合に目指せる候補を分けて表示しています。`);todo.push('今は大学名を決め切るより、高校入試・高校での文理選択・伸ばすべき教科を考える材料として使いましょう。');todo.push(exam.gpaProfile.message)}else{todo.push(projectionText(hProj));if(st==='high')todo.push(ctProjectionText(ctProj));todo.push(exam.gpaProfile.message)}document.getElementById('todoAdvice').innerHTML=todo.map(x=>`<li>${esc(x)}</li>`).join('');document.getElementById('consultAdvice').innerHTML=['この候補をそのまま決定にせず、先生・保護者との進路相談のたたき台にしてください。','最新の募集要項、入試科目、評定条件、出願資格を必ず確認してください。'].map(x=>`<li>${esc(x)}</li>`).join('');document.getElementById('warnings').innerHTML=['この診断結果は、進路選択の参考資料です。','到達見込み偏差値・到達見込み得点率は目安であり、成績上昇を保証するものではありません。'].map(x=>`<li>${esc(x)}</li>`).join('');document.getElementById('rows').innerHTML=resultRowsHtml(rows,hJudge,exam,st);document.getElementById('formCard').classList.add('hidden');document.getElementById('resultCard').classList.remove('hidden');scrollTo(0,0)}catch(e){alert('診断中にエラーが発生しました：'+e.message);console.error(e)}}
 function backToForm(){document.getElementById('resultCard').classList.add('hidden');document.getElementById('formCard').classList.remove('hidden');scrollTo(0,0)}function resetForm(){document.querySelectorAll('input').forEach(i=>{if(i.type==='radio'){i.checked=i.value==='未定'||i.value==='3'}else if(i.type==='checkbox'){i.checked=i.id==='allJapan'}else i.value=''});document.querySelectorAll('select').forEach(s=>s.selectedIndex=0);updateScoreBlocks();renderQuestions()}
 renderRegions();setupFieldLimit();renderStaticInputs();renderHighInputs();renderQuestions();updateScoreBlocks();loadData();document.getElementById('grade').addEventListener('change',()=>{updateScoreBlocks();renderQuestions()});document.getElementById('courseType').addEventListener('change',updateSubjectVisibility);document.getElementById('mode').addEventListener('change',renderQuestions);document.getElementById('allJapan').addEventListener('change',e=>{document.querySelectorAll('input[name="pref"]').forEach(x=>x.disabled=e.target.checked)});
 </script></body></html>
